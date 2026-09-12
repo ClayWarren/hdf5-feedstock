@@ -73,9 +73,9 @@ cmake -G "Ninja" ^
       %SRC_DIR%
 if errorlevel 1 (
   dir CMakeFiles
-  type CMakeFiles/CMakeOutput.log
-  type CMakeFiles/CMakeError.log
-  type CMakeFiles/CMakeConfigureLog.yaml
+  if exist "CMakeFiles\CMakeOutput.log" type "CMakeFiles\CMakeOutput.log"
+  if exist "CMakeFiles\CMakeError.log" type "CMakeFiles\CMakeError.log"
+  if exist "CMakeFiles\CMakeConfigureLog.yaml" type "CMakeFiles\CMakeConfigureLog.yaml"
   exit 1
 )
 
