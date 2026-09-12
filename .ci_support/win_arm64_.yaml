@@ -1,7 +1,7 @@
 aws_c_auth:
 - 0.10.4
 aws_c_common:
-- 0.14.3
+- 0.14.4
 aws_c_http:
 - 0.11.0
 aws_c_io:
@@ -9,7 +9,7 @@ aws_c_io:
 aws_c_s3:
 - 0.13.1
 aws_c_sdkutils:
-- 0.2.7
+- 0.2.8
 c_compiler:
 - vs2022
 c_stdlib:

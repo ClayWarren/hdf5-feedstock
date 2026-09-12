@@ -76,6 +76,8 @@ if NOT [%flow_run_id%] == [] (
 call :end_group
 
 :: Build the recipe
+call conda index C:\hdf5-prereqs
+if errorlevel 1 exit 1
 echo Building recipe
 set "_OLD_CONDA_SUBDIR=%CONDA_SUBDIR%"
 set "CONDA_SUBDIR=%BUILD_PLATFORM%"

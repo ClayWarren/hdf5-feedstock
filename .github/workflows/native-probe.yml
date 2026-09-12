@@ -1,0 +1,111 @@
+name: hdf5 native Windows ARM64
+on:
+  push:
+    branches: [codex/hdf5-arm64-probe]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  probe:
+    if: github.repository == 'ClayWarren/hdf5-feedstock'
+    runs-on: windows-11-arm
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [win_arm64_]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Retrieve verified native AWS prerequisites
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Path C:/hdf5-prereqs/win-arm64 -Force | Out-Null
+          gh run download 34648321112 --repo ClayWarren/aws-c-common-feedstock --name aws-c-common-arm64-package --dir "$env:RUNNER_TEMP/aws-c-common"
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $pkg = @(Get-ChildItem "$env:RUNNER_TEMP/aws-c-common" -Recurse -Filter 'aws-c-common-0.14.4-hfbbf558_1.conda')
+          if ($pkg.Count -ne 1) { throw 'Expected one exact prerequisite' }
+          if ((Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLower() -ne '81c83f63fb36ffcd87bb4ea6b4dc04e6ac5b72e0a2d406ce088fba694050cb6d') { throw 'Prerequisite checksum mismatch' }
+          Copy-Item $pkg[0].FullName C:/hdf5-prereqs/win-arm64/
+          gh run download 34654361445 --repo ClayWarren/aws-c-cal-feedstock --name aws-c-cal-arm64-package --dir "$env:RUNNER_TEMP/aws-c-cal"
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $pkg = @(Get-ChildItem "$env:RUNNER_TEMP/aws-c-cal" -Recurse -Filter 'aws-c-cal-0.9.15-hc76c474_3.conda')
+          if ($pkg.Count -ne 1) { throw 'Expected one exact prerequisite' }
+          if ((Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLower() -ne '34cc88e5ce34a2acbc2043c841f36cba118d9222d8b97e6246d506825bfaf956') { throw 'Prerequisite checksum mismatch' }
+          Copy-Item $pkg[0].FullName C:/hdf5-prereqs/win-arm64/
+          gh run download 34685606291 --repo ClayWarren/aws-c-io-feedstock --name aws-c-io-arm64-package --dir "$env:RUNNER_TEMP/aws-c-io"
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $pkg = @(Get-ChildItem "$env:RUNNER_TEMP/aws-c-io" -Recurse -Filter 'aws-c-io-0.27.5-haecf014_2.conda')
+          if ($pkg.Count -ne 1) { throw 'Expected one exact prerequisite' }
+          if ((Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLower() -ne '5d5a01f95ad863b2043506b9aacae2175f47b649ce79733ef2b72b19c79b343a') { throw 'Prerequisite checksum mismatch' }
+          Copy-Item $pkg[0].FullName C:/hdf5-prereqs/win-arm64/
+          gh run download 34683192859 --repo ClayWarren/aws-c-compression-feedstock --name aws-c-compression-arm64-package --dir "$env:RUNNER_TEMP/aws-c-compression"
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $pkg = @(Get-ChildItem "$env:RUNNER_TEMP/aws-c-compression" -Recurse -Filter 'aws-c-compression-0.3.2-h30dcfef_1.conda')
+          if ($pkg.Count -ne 1) { throw 'Expected one exact prerequisite' }
+          if ((Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLower() -ne '6e070393418d3d268162fbeadbe87cc866eef82b6012094db8065f7fd843c7c0') { throw 'Prerequisite checksum mismatch' }
+          Copy-Item $pkg[0].FullName C:/hdf5-prereqs/win-arm64/
+          gh run download 34685946215 --repo ClayWarren/aws-c-http-feedstock --name aws-c-http-arm64-package --dir "$env:RUNNER_TEMP/aws-c-http"
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $pkg = @(Get-ChildItem "$env:RUNNER_TEMP/aws-c-http" -Recurse -Filter 'aws-c-http-0.11.0-ha2548f8_1.conda')
+          if ($pkg.Count -ne 1) { throw 'Expected one exact prerequisite' }
+          if ((Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLower() -ne '19c6efee11aab48500e3a4dcc9ec4e4ebe7473a695eec0261dd7658589fd3d2d') { throw 'Prerequisite checksum mismatch' }
+          Copy-Item $pkg[0].FullName C:/hdf5-prereqs/win-arm64/
+          gh run download 34685809643 --repo ClayWarren/aws-c-sdkutils-feedstock --name aws-c-sdkutils-arm64-package --dir "$env:RUNNER_TEMP/aws-c-sdkutils"
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $pkg = @(Get-ChildItem "$env:RUNNER_TEMP/aws-c-sdkutils" -Recurse -Filter 'aws-c-sdkutils-0.2.8-h28de954_1.conda')
+          if ($pkg.Count -ne 1) { throw 'Expected one exact prerequisite' }
+          if ((Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLower() -ne '08e57ecde6b689db02757a8189e2147ad44739874b4bacb44a650d4760beb046') { throw 'Prerequisite checksum mismatch' }
+          Copy-Item $pkg[0].FullName C:/hdf5-prereqs/win-arm64/
+          gh run download 34686302178 --repo ClayWarren/aws-c-auth-feedstock --name aws-c-auth-arm64-package --dir "$env:RUNNER_TEMP/aws-c-auth"
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $pkg = @(Get-ChildItem "$env:RUNNER_TEMP/aws-c-auth" -Recurse -Filter 'aws-c-auth-0.10.4-hef5c981_1.conda')
+          if ($pkg.Count -ne 1) { throw 'Expected one exact prerequisite' }
+          if ((Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLower() -ne '5e80c747c65887e2b7f9ff2f460b1ac314f6604fe76e37f7098bb41957b00584') { throw 'Prerequisite checksum mismatch' }
+          Copy-Item $pkg[0].FullName C:/hdf5-prereqs/win-arm64/
+          gh run download 34685671939 --repo ClayWarren/aws-checksums-feedstock --name aws-checksums-arm64-package --dir "$env:RUNNER_TEMP/aws-checksums"
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $pkg = @(Get-ChildItem "$env:RUNNER_TEMP/aws-checksums" -Recurse -Filter 'aws-checksums-0.2.10-h74ccf70_1.conda')
+          if ($pkg.Count -ne 1) { throw 'Expected one exact prerequisite' }
+          if ((Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLower() -ne 'a1784e56e7ed9399b582834fd602befa0a1066229086b28536c6fc7e3ab2903a') { throw 'Prerequisite checksum mismatch' }
+          Copy-Item $pkg[0].FullName C:/hdf5-prereqs/win-arm64/
+          gh run download 34686552867 --repo ClayWarren/aws-c-s3-feedstock --name aws-c-s3-arm64-package --dir "$env:RUNNER_TEMP/aws-c-s3"
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $pkg = @(Get-ChildItem "$env:RUNNER_TEMP/aws-c-s3" -Recurse -Filter 'aws-c-s3-0.13.1-h14a5b10_2.conda')
+          if ($pkg.Count -ne 1) { throw 'Expected one exact prerequisite' }
+          if ((Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLower() -ne '025a5bac84b85937f0b541944de6114d1e5b4740c6ee13c472a8d407520537d3') { throw 'Prerequisite checksum mismatch' }
+          Copy-Item $pkg[0].FullName C:/hdf5-prereqs/win-arm64/
+          gh run download 34686437306 --repo ClayWarren/libaec-feedstock --name libaec-arm64-package --dir "$env:RUNNER_TEMP/libaec"
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $pkg = @(Get-ChildItem "$env:RUNNER_TEMP/libaec" -Recurse -Filter 'libaec-1.1.5-h016239f_1.conda')
+          if ($pkg.Count -ne 1) { throw 'Expected one exact prerequisite' }
+          if ((Get-FileHash $pkg[0].FullName -Algorithm SHA256).Hash.ToLower() -ne '2eb4d6b341d12cb18aba6874be169c02e64000bc5fe2709a9cef860699dc126c') { throw 'Prerequisite checksum mismatch' }
+          Copy-Item $pkg[0].FullName C:/hdf5-prereqs/win-arm64/
+      - name: Build and test hdf5
+        shell: cmd
+        env:
+          BUILD_PLATFORM: win-arm64
+          CI: github_actions
+          CONDA_BLD_PATH: C:\bld
+          CONFIG: ${{ matrix.config }}
+          MINIFORGE_HOME: C:\Miniforge
+          PYTHONUNBUFFERED: '1'
+          UPLOAD_PACKAGES: 'False'
+          CONDA_CHANNEL_PRIORITY: strict
+          EXTRA_CB_OPTIONS: '--override-channels -c file:///C:/hdf5-prereqs -c conda-forge'
+          RATTLER_BUILD_COLOR: always
+          RATTLER_BUILD_ENABLE_GITHUB_INTEGRATION: 'true'
+        run: |
+          set "flow_run_id=github_%GITHUB_RUN_ID%"
+          set "remote_url=https://github.com/%GITHUB_REPOSITORY%"
+          set "sha=%GITHUB_SHA%"
+          call ".scripts\run_win_build.bat"
+      - name: Preserve hdf5 package
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: hdf5-arm64-package
+          path: C:\bld\win-arm64\*.conda
+          if-no-files-found: warn
+          retention-days: 7
