@@ -60,6 +60,9 @@ build:
   string: {{ mpi_prefix }}_h{{ PKG_HASH }}_{{ build }}
   run_exports:
     - {{ pin_subpackage('hdf5', max_pin='x.x.x') }} {{ build_pin }}
+  ignore_run_exports_from:
+    # Only intrinsic Fortran modules are used; HDF5 does not enable OpenMP.
+    - llvm-openmp-fortran  # [win and arm64]
   ignore_run_exports:
     - libacl
   script_env:
@@ -74,6 +77,8 @@ requirements:
     - {{ stdlib('c') }}
     - {{ compiler('cxx') }}
     - {{ compiler('fortran') }}
+    # Flang 23 intrinsic modules are packaged with the OpenMP modules.
+    - llvm-openmp-fortran 23.*  # [win and arm64]
     - cmake
     - automake                   # [not win]
     - autoconf                   # [not win]
@@ -98,6 +103,8 @@ test:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - {{ compiler('fortran') }}
+    # Flang 23 intrinsic modules are packaged with the OpenMP modules.
+    - llvm-openmp-fortran 23.*  # [win and arm64]
     - pkg-config                 # [not win]
     - cmake                      # [not win or arm64]
     - ninja                      # [win and arm64]
