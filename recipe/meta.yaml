@@ -41,6 +41,7 @@ source:
   url: https://github.com/HDFGroup/hdf5/releases/download/{{ version }}/hdf5-{{ version }}.tar.gz
   sha256: 1a1ab8209b35586fbc1aa279ba76d102130b95badcb20ca329587219112d8c16
   patches:
+    - fortran-check-flags.patch  # [win and arm64]
     # Still open upstream as of 2.2.0; rebased onto the reworked filter
     # handling from https://github.com/HDFGroup/hdf5/pull/6287.
     # This matters more in 2.2.0 than it did in 2.1.0: HDF5_USE_GNU_DIRS now

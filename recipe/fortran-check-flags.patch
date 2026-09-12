@@ -1,0 +1,22 @@
+Keep C compiler flags out of Fortran feature checks.
+
+--- a/config/HDF5UseFortran.cmake
++++ b/config/HDF5UseFortran.cmake
+@@ -31,6 +31,11 @@
+ #   - Finds LOGICAL kind for MPI if parallel and testing are enabled
+ #   - Sets variables for use in HDF5 Fortran configuration headers
+ # -----------------------------------------------------------------------------
++
++# C feature-check flags may use MSVC-only syntax that Flang cannot parse.
++include (CMakePushCheckState)
++cmake_push_check_state ()
++set (CMAKE_REQUIRED_FLAGS "")
+ 
+ include (${HDF_CONFIG_DIR}/HDFUseFortran.cmake)
+ 
+@@ -502,3 +507,5 @@
+ else ()
+   set (${HDF_PREFIX}_HAVE_Fortran_INTEGER_SIZEOF_16 1)
+ endif ()
++
++cmake_pop_check_state ()
