@@ -42,6 +42,7 @@ source:
   sha256: e4defbac30f50d64e1556374aa49e574417c9e72c6b1de7a4ff88c4b1bea6e9b
   patches:
     - fortran-check-flags.patch  # [win and arm64]
+    - flang-windows-driver.patch  # [win and arm64]
     # Atomicity tests seem to fail for openmpi
     # This seems to be a known bug
     # https://github.com/HDFGroup/hdf5/issues/2196
