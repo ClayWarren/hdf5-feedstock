@@ -1,0 +1,22 @@
+Keep C compiler flags out of Fortran feature checks.
+
+--- a/config/cmake/HDF5UseFortran.cmake
++++ b/config/cmake/HDF5UseFortran.cmake
+@@ -14,6 +14,11 @@
+ # This file provides functions for HDF5 specific Fortran support.
+ #
+ #-------------------------------------------------------------------------------
++# C feature-check flags may use MSVC-only syntax that Flang cannot parse.
++include (CMakePushCheckState)
++cmake_push_check_state ()
++set (CMAKE_REQUIRED_FLAGS "")
++
+ include (${HDF_RESOURCES_DIR}/HDFUseFortran.cmake)
+ 
+ include (CheckFortranFunctionExists)
+@@ -434,3 +439,5 @@
+ else ()
+   set (${HDF_PREFIX}_HAVE_Fortran_INTEGER_SIZEOF_16 1)
+ endif ()
++
++cmake_pop_check_state ()
