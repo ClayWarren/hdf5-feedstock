@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.24)
+project(flang_dll_data LANGUAGES C Fortran)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+add_library(values SHARED values.f90)
+add_executable(procedure_consumer procedure_consumer.f90)
+target_link_libraries(procedure_consumer PRIVATE values)
+add_executable(data_consumer data_consumer.f90)
+target_link_libraries(data_consumer PRIVATE values)

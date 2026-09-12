@@ -1,102 +1,15 @@
 @echo on
-setlocal EnableDelayedExpansion
-
-mkdir build
-cd build
-
-:: Set environment variables.
-set HDF5_EXT_ZLIB=zlib.lib
-
-:: Preserve Fortran support with the native compiler for each architecture.
-echo "FC=%FC%"
-set "CMAKE_ARGS=!CMAKE_ARGS! -D HDF5_BUILD_FORTRAN:BOOL=ON"
-if not "%target_platform%" == "win-arm64" (
-  set "LIB=%BUILD_PREFIX%\Library\lib;%LIB%"
-  set "INCLUDE=%BUILD_PREFIX%\opt\compiler\include\intel64;%INCLUDE%"
-  set FFLAGS=%FFLAGS% /names:lowercase /assume:underscore /nologo
-)
-
-set "CXXFLAGS=%CXXFLAGS% -LTCG"
-if "%mpi%"=="impi" (
-  :: cmake generates syntax errors if there are backslashes in paths
-  set _LIBRARY=%LIBRARY_PREFIX:\=/%
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_C_ADDITIONAL_INCLUDE_DIRS:PATH=!_LIBRARY!/include"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_CXX_ADDITIONAL_INCLUDE_DIRS:PATH=!_LIBRARY!/include"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_FC_ADDITIONAL_INCLUDE_DIRS:PATH=!_LIBRARY!/include"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_C_LIB_NAMES=IMPI"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_CXX_LIB_NAMES=IMPI"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_IMPI_LIBRARY:PATH=!_LIBRARY!/lib/impi.lib"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_ASSUME_NO_BUILTIN_MPI=ON"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_SKIP_COMPILER_WRAPPER=ON"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_SKIP_GUESSING=ON"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D HDF5_ENABLE_PARALLEL:BOOL=ON"
-
-  :: --- Only Fortran MPI variables added below ---
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_Fortran_COMPILER:PATH=!_LIBRARY!/bin/mpiifx.bat"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_Fortran_INCLUDE_PATH:PATH=%BUILD_PREFIX%\opt\compiler\include"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_Fortran_MODULE_DIR:PATH=%BUILD_PREFIX%\opt\compiler\include\intel64"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_Fortran_WORKS:BOOL=ON"
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D MPI_Fortran_LIB_NAMES=IMPI"
-
-  :: Force MPI F08 support detection - Intel MPI supports mpi_f08
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D H5_HAVE_MPI_F08:BOOL=ON"
-
-  :: Ensure the Fortran compiler finds MPI modules (names lower case and underscore to align with flang defaults)
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D CMAKE_Fortran_FLAGS:STRING=-I!_LIBRARY!/include/mpi %FFLAGS%"
-) else if not "%target_platform%" == "win-arm64" (
-  :: Native Flang flags are initialized by CMake from FFLAGS.
-  :: Fortran names lower case and underscore to align with flang defaults
-  set "CMAKE_ARGS=!CMAKE_ARGS! -D CMAKE_Fortran_FLAGS:STRING=%FFLAGS%"
-)
-
-echo "CMAKE_ARGS=!CMAKE_ARGS!"
-
-:: Configure step.
-cmake -G "Ninja" ^
-      !CMAKE_ARGS! ^
-      -D CMAKE_BUILD_TYPE:STRING=RELEASE ^
-      -D CMAKE_PREFIX_PATH:PATH=%LIBRARY_PREFIX% ^
-      -D CMAKE_INSTALL_PREFIX:PATH=%LIBRARY_PREFIX% ^
-      -D HDF5_BUILD_CPP_LIB:BOOL=ON ^
-      -D CMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON ^
-      -D BUILD_SHARED_LIBS:BOOL=ON ^
-      -D BUILD_STATIC_LIBS:BOOL=OFF ^
-      -D ONLY_SHARED_LIBS:BOOL=ON ^
-      -D HDF5_BUILD_HL_LIB:BOOL=ON ^
-      -D HDF5_BUILD_TOOLS:BOOL=ON ^
-      -D HDF5_BUILD_HL_GIF_TOOLS:BOOL=ON ^
-      -D HDF5_ENABLE_Z_LIB_SUPPORT:BOOL=ON ^
-      -D HDF5_ENABLE_THREADSAFE:BOOL=ON ^
-      -D HDF5_ENABLE_ROS3_VFD:BOOL=ON ^
-      -D HDF5_ENABLE_SZIP_SUPPORT=ON ^
-      -D ALLOW_UNSUPPORTED:BOOL=ON ^
-      %SRC_DIR%
-if errorlevel 1 (
-  dir CMakeFiles
-  if exist "CMakeFiles\CMakeOutput.log" type "CMakeFiles\CMakeOutput.log"
-  if exist "CMakeFiles\CMakeError.log" type "CMakeFiles\CMakeError.log"
-  if exist "CMakeFiles\CMakeConfigureLog.yaml" type "CMakeFiles\CMakeConfigureLog.yaml"
-  exit 1
-)
-
-:: Build C libraries and tools.
-ninja
+cmake -S "%RECIPE_DIR%\dll-reproducer" -B dll-reproducer-build -G Ninja -DCMAKE_BUILD_TYPE=Release
 if errorlevel 1 exit 1
-
-:: Install step.
-ninja install
+cmake --build dll-reproducer-build --target procedure_consumer
 if errorlevel 1 exit 1
-
-:: Remove extraneous COPYING file that gets installed automatically
-:: https://github.com/conda-forge/hdf5-feedstock/issues/87
-del /f %PREFIX%\Library\COPYING
+dll-reproducer-build\procedure_consumer.exe
 if errorlevel 1 exit 1
-del /f %PREFIX%\Library\RELEASE.txt
+dumpbin /headers dll-reproducer-build\values.dll | findstr /I /C:"AA64 machine (ARM64)"
 if errorlevel 1 exit 1
-
-:: Remove Libs.private from h5.pc
-:: See https://github.com/conda-forge/hdf5-feedstock/issues/238
-findstr /V "Libs.private"  %LIBRARY_PREFIX%\\lib\\pkgconfig\\hdf5.pc > hdf5.pc.new
+dumpbin /exports dll-reproducer-build\values.dll
+dumpbin /linkermember:1 dll-reproducer-build\values.lib
+cmake --build dll-reproducer-build --target data_consumer
 if errorlevel 1 exit 1
-move /y hdf5.pc.new %LIBRARY_PREFIX%\\lib\\pkgconfig\\hdf5.pc
+dll-reproducer-build\data_consumer.exe
 if errorlevel 1 exit 1

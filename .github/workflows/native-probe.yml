@@ -1,7 +1,7 @@
-name: hdf5 native Windows ARM64
+name: Reproduce Flang ARM64 DLL data import
 on:
   push:
-    branches: [codex/hdf5-1.14-arm64-probe]
+    branches: [codex/flang-dll-data-probe]
 permissions:
   contents: read
 jobs:
