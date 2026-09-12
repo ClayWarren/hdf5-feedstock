@@ -43,7 +43,8 @@ if "%mpi%"=="impi" (
 
   :: Ensure the Fortran compiler finds MPI modules (names lower case and underscore to align with flang defaults)
   set "CMAKE_ARGS=!CMAKE_ARGS! -D CMAKE_Fortran_FLAGS:STRING=-I!_LIBRARY!/include/mpi %FFLAGS%"
-) else (
+) else if not "%target_platform%" == "win-arm64" (
+  :: Native Flang flags are initialized by CMake from FFLAGS.
   :: Fortran names lower case and underscore to align with flang defaults
   set "CMAKE_ARGS=!CMAKE_ARGS! -D CMAKE_Fortran_FLAGS:STRING=%FFLAGS%"
 )
