@@ -1,6 +1,6 @@
 mpi:
   - nompi
-  - impi  # [win]
+  - impi  # [win and not arm64]
   - mpich  # [unix]
   - openmpi  # [unix]
 # https://github.com/conda-forge/opencv-feedstock/issues/493
@@ -8,10 +8,12 @@ MACOSX_SDK_VERSION:  # [osx]
   - 15.5             # [osx]
 
 fortran_compiler:   # [win]
-    - ifx           # [win]
+    - ifx           # [win and not arm64]
+    - flang         # [win and arm64]
 
 fortran_compiler_version:   # [win]
-    - '2025.*'              # [win]
+    - '2025.*'              # [win and not arm64]
+    - '23'                  # [win and arm64]
 impi_devel:                 # [win]
   - 2021.17                 # [win]
 

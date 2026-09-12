@@ -1,7 +1,7 @@
 {% set version = "2.2.0" %}
 {% set maj_min_patch_ver = "_".join(version.split(".")) %}
 {% set maj_min_ver = "_".join(version.split(".")[:2]) %}
-{% set build = 0 %}
+{% set build = 1 %}
 
 # recipe-lint fails if mpi is undefined
 {% set mpi = mpi or 'nompi' %}
@@ -93,9 +93,10 @@ test:
   requires:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - {{ compiler('fortran') }}  # [not win]
+    - {{ compiler('fortran') }}  # [not win or arm64]
     - pkg-config                 # [not win]
-    - cmake                      # [not win]
+    - cmake                      # [not win or arm64]
+    - ninja                      # [win and arm64]
     - make                       # [not win]
     # ensure new libgfortran is co-installable; in July 2025, there were resolution errors
     # with hdfs5 depending on `libgfortran =5` (either real or hallucinated). This check can
@@ -164,6 +165,12 @@ test:
     - if not exist %PREFIX%\\Library\\lib\\{{ each_hdf5_lib }}.lib exit 1  # [win]
     - if not exist %PREFIX%\\Library\\bin\\{{ each_hdf5_lib }}.dll exit 1  # [win]
     {% endfor %}
+    - cmake -S test/arm64 -B consumer-build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%LIBRARY_PREFIX%"  # [win and arm64]
+    - cmake --build consumer-build  # [win and arm64]
+    - ctest --test-dir consumer-build --output-on-failure  # [win and arm64]
+    - dumpbin /headers "%LIBRARY_BIN%\hdf5.dll" | findstr /I /C:"AA64 machine (ARM64)"  # [win and arm64]
+    - dumpbin /headers "%LIBRARY_BIN%\hdf5_fortran.dll" | findstr /I /C:"AA64 machine (ARM64)"  # [win and arm64]
+    - dumpbin /headers consumer-build\hdf5_fortran.exe | findstr /I /C:"AA64 machine (ARM64)"  # [win and arm64]
     # Check ros3 driver
     - AWS_REGION=us-east-2 h5dump --filedriver=ros3 "https://s3.amazonaws.com/hdfgroup/data/hdf5demo/tall.h5" | grep '^HDF5'  # [unix]
     # Jan 2023 -- hmaarrfk. Tests will fail on windows without --s3-cred specified

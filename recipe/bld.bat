@@ -7,12 +7,14 @@ cd build
 :: Set environment variables.
 set HDF5_EXT_ZLIB=zlib.lib
 
-:: Needed by IFX
+:: Preserve Fortran support with the native compiler for each architecture.
 echo "FC=%FC%"
-set "LIB=%BUILD_PREFIX%\Library\lib;%LIB%"
-set "INCLUDE=%BUILD_PREFIX%\opt\compiler\include\intel64;%INCLUDE%"
 set "CMAKE_ARGS=!CMAKE_ARGS! -D HDF5_BUILD_FORTRAN:BOOL=ON"
-set FFLAGS=%FFLAGS% /names:lowercase /assume:underscore /nologo
+if not "%target_platform%" == "win-arm64" (
+  set "LIB=%BUILD_PREFIX%\Library\lib;%LIB%"
+  set "INCLUDE=%BUILD_PREFIX%\opt\compiler\include\intel64;%INCLUDE%"
+  set FFLAGS=%FFLAGS% /names:lowercase /assume:underscore /nologo
+)
 
 set "CXXFLAGS=%CXXFLAGS% -LTCG"
 if "%mpi%"=="impi" (
