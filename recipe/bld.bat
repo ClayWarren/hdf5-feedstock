@@ -1,4 +1,5 @@
 @echo on
+set "RECIPE_DIR=%~dp0"
 cmake -S "%RECIPE_DIR%\dll-reproducer" -B dll-reproducer-build -G Ninja -DCMAKE_BUILD_TYPE=Release
 if errorlevel 1 exit 1
 cmake --build dll-reproducer-build --target procedure_consumer
