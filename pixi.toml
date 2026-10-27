@@ -1,0 +1,14 @@
+[workspace]
+name = "flang-dll-data-recheck"
+channels = ["conda-forge"]
+platforms = ["win-arm64"]
+
+[dependencies]
+flang = "==23.1.4"
+flang_win-arm64 = ">=23,<24"
+vs2022_win-arm64 = "*"
+cmake = ">=3.24"
+ninja = "*"
+
+[tasks]
+probe = "cmd /d /c recipe\\bld.bat"
